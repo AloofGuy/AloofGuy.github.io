@@ -8,16 +8,17 @@
   <link rel="dns-prefetch" href="http://aloofguy.github.io">
   <title>JWT第三方登陆 | aloofguyblog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="JWT第三方登陆Json web token，一般用于用户认证(前后端分离(跨域)&#x2F;微信小程序&#x2F;app开发等)">
+  <meta name="description" content="JWT第三方登陆">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JWT第三方登陆">
 <meta property="og:url" content="http://aloofguy.github.io/2020/05/24/JWT%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E9%99%86/index.html">
 <meta property="og:site_name" content="aloofguyblog">
-<meta property="og:description" content="JWT第三方登陆Json web token，一般用于用户认证(前后端分离(跨域)&#x2F;微信小程序&#x2F;app开发等)">
+<meta property="og:description" content="JWT第三方登陆">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-05-24T06:50:30.000Z">
-<meta property="article:modified_time" content="2020-05-24T08:04:43.312Z">
+<meta property="article:modified_time" content="2020-07-03T03:15:44.539Z">
 <meta property="article:author" content="AloofGuy">
+<meta property="article:tag" content="OAuth2">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="aloofguyblog" type="application/atom+xml">
@@ -60,6 +61,10 @@
 				<li><a href="/aloofguy.github.io/">主页</a></li>
 	        
 				<li><a href="/aloofguy.github.io/tags/%E7%AE%97%E6%B3%95/">算法</a></li>
+	        
+				<li><a href="/aloofguy.github.io/tags/Java%E6%A1%86%E6%9E%B6/">Java框架</a></li>
+	        
+				<li><a href="/aloofguy.github.io/tags/OAuth2/">OAuth2</a></li>
 	        
 				<li><a href="/aloofguy.github.io/archives/index.html">归档</a></li>
 	        
@@ -127,6 +132,10 @@
 			
 				
 			
+				
+			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -145,11 +154,15 @@
 				<ul style="width: 70%">
 				
 				
-					<li style="width: 33.333333333333336%"><a href="/aloofguy.github.io/">主页</a></li>
+					<li style="width: 20%"><a href="/aloofguy.github.io/">主页</a></li>
 		        
-					<li style="width: 33.333333333333336%"><a href="/aloofguy.github.io/tags/%E7%AE%97%E6%B3%95/">算法</a></li>
+					<li style="width: 20%"><a href="/aloofguy.github.io/tags/%E7%AE%97%E6%B3%95/">算法</a></li>
 		        
-					<li style="width: 33.333333333333336%"><a href="/aloofguy.github.io/archives/index.html">归档</a></li>
+					<li style="width: 20%"><a href="/aloofguy.github.io/tags/Java%E6%A1%86%E6%9E%B6/">Java框架</a></li>
+		        
+					<li style="width: 20%"><a href="/aloofguy.github.io/tags/OAuth2/">OAuth2</a></li>
+		        
+					<li style="width: 20%"><a href="/aloofguy.github.io/archives/index.html">归档</a></li>
 		        
 				</ul>
 			</nav>
@@ -200,9 +213,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JWT第三方登陆"><a href="#JWT第三方登陆" class="headerlink" title="JWT第三方登陆"></a>JWT第三方登陆</h1><p>Json web token，一般用于用户认证(前后端分离(跨域)/微信小程序/app开发等)</p>
-<a id="more"></a>
-<h2 id="1-传统的token验证机制"><a href="#1-传统的token验证机制" class="headerlink" title="1.传统的token验证机制"></a>1.传统的token验证机制</h2><p>用户登录用户名和密码进来，通过UUID生成一个token，并将这个token传回给客户端保存，并在服务端也进行保存，在下次登录的时候，客户端将token传入，服务端通过token查找是否存在用户，若存在及登录成功；若不存在，登录不成功。<br>##2.JWT<br>用户登录，服务端给用户返回一个token（服务端不保存），以后用户再访问时，需携带token，服务端获取到token后，对token进行校验。  </p>
+        <h1 id="JWT第三方登陆"><a href="#JWT第三方登陆" class="headerlink" title="JWT第三方登陆"></a>JWT第三方登陆</h1><a id="more"></a>
+<h1 id="Json-web-token，一般用于用户认证-前后端分离-跨域-微信小程序-app开发等"><a href="#Json-web-token，一般用于用户认证-前后端分离-跨域-微信小程序-app开发等" class="headerlink" title="Json web token，一般用于用户认证(前后端分离(跨域)/微信小程序/app开发等)"></a>Json web token，一般用于用户认证(前后端分离(跨域)/微信小程序/app开发等)</h1><h2 id="1-传统的token验证机制"><a href="#1-传统的token验证机制" class="headerlink" title="1.传统的token验证机制"></a>1.传统的token验证机制</h2><p>用户登录用户名和密码进来，通过UUID生成一个token，并将这个token传回给客户端保存，并在服务端也进行保存，在下次登录的时候，客户端将token传入，服务端通过token查找是否存在用户，若存在及登录成功；若不存在，登录不成功。</p>
+<h2 id="2-JWT"><a href="#2-JWT" class="headerlink" title="2.JWT"></a>2.JWT</h2><p>用户登录，服务端给用户返回一个token（服务端不保存），以后用户再访问时，需携带token，服务端获取到token后，对token进行校验。  </p>
 <p>优势：相较于传统的token相比，jwt不需要在服务端保存token。</p>
 <h2 id="3-JWT实现过程"><a href="#3-JWT实现过程" class="headerlink" title="3.JWT实现过程"></a>3.JWT实现过程</h2><h3 id="1-用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。"><a href="#1-用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。" class="headerlink" title="1.用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。"></a>1.用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。</h3><p><font color=red size=5>注意：jwt生成的token是由三段字符串组成，并用.连接起来。</font></p>
 <ol>
@@ -234,7 +247,7 @@
     2020-05-24
     <br>
     <strong class="update-time">最后更新：</strong>
-    2020-05-24
+    2020-07-03
     <br>
     <strong class="article-titles">本文标题：</strong>
     <a href="http://aloofguy.github.io/2020/05/24/JWT第三方登陆/" title="JWT第三方登陆" target="_blank">JWT第三方登陆</a>
@@ -297,6 +310,17 @@
         </div>
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">OAuth2</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       
@@ -399,7 +423,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#JWT第三方登陆"><span class="toc-number">1.</span> <span class="toc-text">JWT第三方登陆</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-传统的token验证机制"><span class="toc-number">1.1.</span> <span class="toc-text">1.传统的token验证机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-JWT实现过程"><span class="toc-number">1.2.</span> <span class="toc-text">3.JWT实现过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-以后用户再来访问时候，需要携带token，后端需要对token进行校验"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.以后用户再来访问时候，需要携带token，后端需要对token进行校验</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推荐可用JW工具"><span class="toc-number">1.3.</span> <span class="toc-text">推荐可用JW工具</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#JWT第三方登陆"><span class="toc-number">1.</span> <span class="toc-text">JWT第三方登陆</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Json-web-token，一般用于用户认证-前后端分离-跨域-微信小程序-app开发等"><span class="toc-number">2.</span> <span class="toc-text">Json web token，一般用于用户认证(前后端分离(跨域)&#x2F;微信小程序&#x2F;app开发等)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-传统的token验证机制"><span class="toc-number">2.1.</span> <span class="toc-text">1.传统的token验证机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-JWT"><span class="toc-number">2.2.</span> <span class="toc-text">2.JWT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-JWT实现过程"><span class="toc-number">2.3.</span> <span class="toc-text">3.JWT实现过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。"><span class="toc-number">2.3.1.</span> <span class="toc-text">1.用户提交用户名和密码给服务端，如果登录成功，使用jwt创建一个token，并给用户返回。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-以后用户再来访问时候，需要携带token，后端需要对token进行校验"><span class="toc-number">2.3.2.</span> <span class="toc-text">2.以后用户再来访问时候，需要携带token，后端需要对token进行校验</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推荐可用JW工具"><span class="toc-number">2.4.</span> <span class="toc-text">推荐可用JW工具</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -553,6 +577,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">OAuth2</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Java框架</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">算法</a>

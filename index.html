@@ -57,6 +57,10 @@
 	        
 				<li><a href="/aloofguy.github.io/tags/%E7%AE%97%E6%B3%95/">算法</a></li>
 	        
+				<li><a href="/aloofguy.github.io/tags/Java%E6%A1%86%E6%9E%B6/">Java框架</a></li>
+	        
+				<li><a href="/aloofguy.github.io/tags/OAuth2/">OAuth2</a></li>
+	        
 				<li><a href="/aloofguy.github.io/archives/index.html">归档</a></li>
 	        
 			</ul>
@@ -123,6 +127,10 @@
 			
 				
 			
+				
+			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -141,11 +149,15 @@
 				<ul style="width: 70%">
 				
 				
-					<li style="width: 33.333333333333336%"><a href="/aloofguy.github.io/">主页</a></li>
+					<li style="width: 20%"><a href="/aloofguy.github.io/">主页</a></li>
 		        
-					<li style="width: 33.333333333333336%"><a href="/aloofguy.github.io/tags/%E7%AE%97%E6%B3%95/">算法</a></li>
+					<li style="width: 20%"><a href="/aloofguy.github.io/tags/%E7%AE%97%E6%B3%95/">算法</a></li>
 		        
-					<li style="width: 33.333333333333336%"><a href="/aloofguy.github.io/archives/index.html">归档</a></li>
+					<li style="width: 20%"><a href="/aloofguy.github.io/tags/Java%E6%A1%86%E6%9E%B6/">Java框架</a></li>
+		        
+					<li style="width: 20%"><a href="/aloofguy.github.io/tags/OAuth2/">OAuth2</a></li>
+		        
+					<li style="width: 20%"><a href="/aloofguy.github.io/archives/index.html">归档</a></li>
 		        
 				</ul>
 			</nav>
@@ -214,6 +226,17 @@
         </div>
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Java框架</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       
@@ -274,7 +297,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="JWT第三方登陆"><a href="#JWT第三方登陆" class="headerlink" title="JWT第三方登陆"></a>JWT第三方登陆</h1><p>Json web token，一般用于用户认证(前后端分离(跨域)/微信小程序/app开发等)</p>
+        <h1 id="JWT第三方登陆"><a href="#JWT第三方登陆" class="headerlink" title="JWT第三方登陆"></a>JWT第三方登陆</h1>
         
           <a class="article-more-a" href="/aloofguy.github.io/2020/05/24/JWT%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E9%99%86/#more">more >></a>
         
@@ -303,6 +326,17 @@
         </div>
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">OAuth2</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       
@@ -463,18 +497,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="一次HTTP需要经历的九九八十一难"><a href="#一次HTTP需要经历的九九八十一难" class="headerlink" title="一次HTTP需要经历的九九八十一难"></a>一次HTTP需要经历的九九八十一难</h1><p>域名解析–&gt;与服务器建立连接–&gt;发送请求–&gt;服务器响应请求，浏览器得到html代码–&gt;浏览器解析html代码，并请求html代码中的资源–&gt;浏览器对页面进行渲染呈现给用户</p>
-<h2 id="1-域名解析"><a href="#1-域名解析" class="headerlink" title="1. 域名解析"></a>1. 域名解析</h2><ol>
-<li>浏览器自身缓存查找是否存在该域名，在没有过期的情况下(缓存时间较短，大概1分钟，且只能缓存1000条)，若找到解析结束，没有就下一步</li>
-<li>浏览器会搜索操作系统自身的DNS缓存，在没有过期的情况下找到就结束，若没有找到，下一步</li>
-<li>尝试读取hosts文件中是否存在该域名对应的ip地址，若有则返回结束，没有就下一步</li>
-<li>浏览器就会发起一个DNS系统调用，就会向本地配置的首选DNS服务器(一般是电信运营商提供)请求域名解析。运营商就会查看自身的DNS缓存是否存在，若存在且未过期，解析结束。没有就下一步</li>
-<li>运营商的DNS就会代我们的浏览器发起迭代DNS解析请求，首先会找根域的DNS的ip地址，找到就发送请求，根域发现这是一个顶级域名com域的一个域名，就会告诉运营商的DNS，我不知道这个ip地址，我给你com域的IP地址，运营商的DNS向com域的ip地址发送请求。</li>
-<li>com域这台服务器会告诉运营商的DNS，我不知道这个域名，但是我知道xxx.com这个域名的DNS地址，你去找他，运营商的DNS就向chrom.com这一域名的DNS发送请求</li>
-<li>xxx.com域名的DNS就进行查找，果真在我这，返回给运营商的DNS这个域名的IP地址，运营商的DNS就会将这个ip地址返回给windos内核，windows内核将ip地址返回给浏览器。<h2 id="2-与服务器建立连接"><a href="#2-与服务器建立连接" class="headerlink" title="2. 与服务器建立连接"></a>2. 与服务器建立连接</h2></li>
-<li>TCP三次请求</li>
-</ol>
-
+        <h1 id="一次HTTP需要经历的九九八十一难"><a href="#一次HTTP需要经历的九九八十一难" class="headerlink" title="一次HTTP需要经历的九九八十一难"></a>一次HTTP需要经历的九九八十一难</h1>
+        
+          <a class="article-more-a" href="/aloofguy.github.io/2020/05/24/%E4%B8%80%E6%AC%A1HTTP%E8%AF%B7%E6%B1%82%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/#more">more >></a>
+        
       
       
 	<!-- 添加版权声明 -->
@@ -637,6 +663,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">OAuth2</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Java框架</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">算法</a>
