@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=4057712864,3144466252&fm=11&gp=0.jpg">
 <meta property="og:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1593920934614&di=c6ceb5c3c1274fbb3fb5d4072bdce9de&imgtype=0&src=http%253A%252F%252F5b0988e595225.cdn.sohucs.com%252Fimages%252F20190926%252F4732f46de07c4859915dad94489bc312.png">
 <meta property="article:published_time" content="2020-07-05T02:20:20.000Z">
-<meta property="article:modified_time" content="2020-07-05T02:37:12.926Z">
+<meta property="article:modified_time" content="2020-07-05T14:13:29.193Z">
 <meta property="article:author" content="AloofGuy">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=4057712864,3144466252&fm=11&gp=0.jpg">
@@ -260,7 +260,7 @@ ABA问题就是指：当x=0被读取出来后，其他线程对x=0进行了如�
 }</code></pre><p>实原子操作底层调用：<br>    1.    incrementAndGet()<br>    2.    unsafe.getAndAddInt()<br>    3.    unsafe.compareAndSwapInt()<br>此处的compareAndSwap就是我们的CAS，而第3步方法是一个native方法，即源码为c++的，故需看c++的源码</p>
 <h3 id="CAS底层最终实现"><a href="#CAS底层最终实现" class="headerlink" title="CAS底层最终实现"></a>CAS底层最终实现</h3><p><font color=red>cmpxchg = CAS修改变量值</font>  </p>
 <pre><code>CAS最后的指令使用的是汇编，即Lock cmpxchg 指令
-cmpxchg就是指compute multi processors exchange</code></pre><h4 id="这里的Lock有什么作用？"><a href="#这里的Lock有什么作用？" class="headerlink" title="这里的Lock有什么作用？"></a>这里的Lock有什么作用？</h4><pre><code>上面的lock cmpxchg指令在单核处理器时，不需要加lock，而在多核处理器环境下，就需要加lock，因为每一个cpu调用的就是一个CAS指令。
+cmpxchg就是指compare and exchange</code></pre><h4 id="这里的Lock有什么作用？"><a href="#这里的Lock有什么作用？" class="headerlink" title="这里的Lock有什么作用？"></a>这里的Lock有什么作用？</h4><pre><code>上面的lock cmpxchg指令在单核处理器时，不需要加lock，而在多核处理器环境下，就需要加lock，因为每一个cpu调用的就是一个CAS指令。
 而在执行cmpxchg时，多核处理器会有多个cpu去执行CAS指令，多个CAS指令去操作同一个变量时，也会被另外的CAS指令打断，故使用lock去锁住总线。</code></pre><h3 id="什么是锁总线？"><a href="#什么是锁总线？" class="headerlink" title="什么是锁总线？"></a>什么是锁总线？</h3><pre><code>CPU是通过一组线去访问内存的，锁总线就是指当一个CPU去访问内存的时候，lock就将这组线给锁住，禁止其他CPU去访问该内存，从而实现原子操作。
 这就是CAS原子操作实现的底层。</code></pre><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=449239668&auto=1&height=66"></iframe>
 
