@@ -6,15 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://aloofguy.github.io">
-  <title>Archives: 2020 | aloofguyblog</title>
+  <title>CAS底层详解 | aloofguyblog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="aloofguyblog">
-<meta property="og:url" content="http://aloofguy.github.io/archives/2020/index.html">
+  <meta name="description" content="CAS详解+底层">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CAS底层详解">
+<meta property="og:url" content="http://aloofguy.github.io/2020/07/05/CAS%E5%BA%95%E5%B1%82%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="aloofguyblog">
+<meta property="og:description" content="CAS详解+底层">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=4057712864,3144466252&fm=11&gp=0.jpg">
+<meta property="og:image" content="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1593920934614&di=c6ceb5c3c1274fbb3fb5d4072bdce9de&imgtype=0&src=http%253A%252F%252F5b0988e595225.cdn.sohucs.com%252Fimages%252F20190926%252F4732f46de07c4859915dad94489bc312.png">
+<meta property="article:published_time" content="2020-07-05T02:20:20.000Z">
+<meta property="article:modified_time" content="2020-07-05T02:37:12.926Z">
 <meta property="article:author" content="AloofGuy">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=4057712864,3144466252&fm=11&gp=0.jpg">
   
     <link rel="alternative" href="/atom.xml" title="aloofguyblog" type="application/atom+xml">
   
@@ -173,189 +180,315 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  <i class="fa fa-thumb-tack"></i>
+  <font color=7D26CD>�ö�</font>
+  <span class="post-meta-divider">|</span>
+
+<article id="post-CAS底层详解" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+            <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      CAS底层详解
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/aloofguy.github.io/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/aloofguy.github.io/2020/07/05/CAS%E5%BA%95%E5%B1%82%E8%AF%A6%E8%A7%A3/" class="archive-article-date">
+
+        
+        <a href="/aloofguy.github.io/2020/07/05/CAS%E5%BA%95%E5%B1%82%E8%AF%A6%E8%A7%A3/" class="archive-article-date">
   	<time datetime="2020-07-05T02:20:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-05</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/aloofguy.github.io/2020/07/05/CAS%E5%BA%95%E5%B1%82%E8%AF%A6%E8%A7%A3/">CAS底层详解</a>
-    </h1>
-  
+        
+    
+    
+        
+          <span class="archive-article-date">
+              阅读量 <span id="busuanzi_value_page_pv"></span>
+          </span>
+        
+    
+    
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="CAS详解-底层"><a href="#CAS详解-底层" class="headerlink" title="CAS详解+底层"></a>CAS详解+底层</h1><a id="more"></a>
+<hr>
+<h2 id="CAS是什么？"><a href="#CAS是什么？" class="headerlink" title="CAS是什么？"></a>CAS是什么？</h2><h3 id="在了解CAS之前，我们先了解一下用户态和内核态"><a href="#在了解CAS之前，我们先了解一下用户态和内核态" class="headerlink" title="在了解CAS之前，我们先了解一下用户态和内核态"></a>在了解CAS之前，我们先了解一下用户态和内核态</h3><pre><code>用户态和内核态是指cpu的权限等级
+用户态是指用户只能在用户空间进行一系列操作
+内核态是指操作系统与硬件之间打交道，而用户就无权限（如摄像头、硬盘、网卡等）</code></pre><h3 id="再谈谈重量级锁和轻量级锁"><a href="#再谈谈重量级锁和轻量级锁" class="headerlink" title="再谈谈重量级锁和轻量级锁"></a>再谈谈重量级锁和轻量级锁</h3><pre><code>重量级锁：是指在申请一把锁时，都需要通过JVM，而这里的JVM相当于操作系统来讲只是用户层面的应用，故JVM需要向操作系统内核申请一把锁，操作系统内核通过系统调用，将自己管理的锁分配给JVM。
 
-        <div class="article-info info-on-right">
-          
-          
+总结起来：重量级锁在申请锁资源时，必须通过操作系统内核，系统调用。
 
+轻量级锁：是指在用户空间进行的锁资源分配。</code></pre><h3 id="CAS就是一把轻量级锁"><a href="#CAS就是一把轻量级锁" class="headerlink" title="CAS就是一把轻量级锁"></a>CAS就是一把轻量级锁</h3><p><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=4057712864,3144466252&fm=11&gp=0.jpg" alt="CAS原理图"></p>
+<pre><code>CAS就是compare and swap比较交换的意思。比如有一个变量x=0，在不使用CAS的时候，保证线程安全用synchronized去加锁，这时每次去读取这个值都需要去操作系统内核中进行读取比较，性能较差。
+
+使用CAS(不加锁，在操作系统用户空间执行)之后，每一个线程都会先将值读取出来，以pre表示，在计算结果之后，结果用res表示，会将读取的值pre与当前x的值进行比较，相等就更新x=res，不相等，就循环上面的操作，直到相等，故是不会产生死锁的。
+
+ABA问题就是指：当x=0被读取出来后，其他线程对x=0进行了如下操作，先操作x=1，再操作x=0。此时在当前线程进行判断的时候，发现x=0=pre，故执行x=res操作。
+但是此时x的值改变了多次，故还是线程不安全的。
+解决方案：1.    加版本号
+         2. 使用boolean。</code></pre><h3 id="CAS的灵魂问题！！！"><a href="#CAS的灵魂问题！！！" class="headerlink" title="CAS的灵魂问题！！！"></a><font color=red>CAS的灵魂问题！！！</font></h3><pre><code>CAS存在一个问题，我们知道CAS分为两步，第一步是判断读取的值pre是否与当前新值相等，第二步再是将x的值更新为res。
+此时若是其他线程在CAS执行完第一步之后,在第二步执行开始之前，对x的值进行了修改。</code></pre><p><img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1593920934614&di=c6ceb5c3c1274fbb3fb5d4072bdce9de&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20190926%2F4732f46de07c4859915dad94489bc312.png" alt="hahh">  </p>
+<pre><code>故CAS的判断和写回操作必须是原子操作</code></pre><h2 id="CAS的原子操作是如何实现的？"><a href="#CAS的原子操作是如何实现的？" class="headerlink" title="CAS的原子操作是如何实现的？"></a>CAS的原子操作是如何实现的？</h2><pre><code>public class Test_AtomicInteger {
+    //AtomicInteger原子类
+    private static AtomicInteger m = new AtomicInter(0);
+
+    public static void main(String[] args) throws InterruptedException {
+        //创建100个线程
+        Thread[] threads = new Thread[100];
+
+        //相当于一个门栓，直到所有的线程执行完成之后，才打开这个门栓，执行它之后的代码
+        CountDownLatch latch = new CountDownLatch(threads.length);
+
+        for(int i = 0;i &lt; threads.length;i++){
+            threads[i] = new Thread(()-&gt;{
+               for(int i = 0;i &lt; 10000;i++){
+                   //m++
+                   m.incrementAndGet();
+               }
+            });
+        }
+        Arrays.stream(threads).forEach((t)-&gt;t.start());
+
+        //当100个线程执行完成之后才打开门栓执行下一步
+        latch.await();
+
+        System.out.println(m);
+    }
+}</code></pre><p>实原子操作底层调用：<br>    1.    incrementAndGet()<br>    2.    unsafe.getAndAddInt()<br>    3.    unsafe.compareAndSwapInt()<br>此处的compareAndSwap就是我们的CAS，而第3步方法是一个native方法，即源码为c++的，故需看c++的源码</p>
+<h3 id="CAS底层最终实现"><a href="#CAS底层最终实现" class="headerlink" title="CAS底层最终实现"></a>CAS底层最终实现</h3><p><font color=red>cmpxchg = CAS修改变量值</font>  </p>
+<pre><code>CAS最后的指令使用的是汇编，即Lock cmpxchg 指令
+cmpxchg就是指compute multi processors exchange</code></pre><h4 id="这里的Lock有什么作用？"><a href="#这里的Lock有什么作用？" class="headerlink" title="这里的Lock有什么作用？"></a>这里的Lock有什么作用？</h4><pre><code>上面的lock cmpxchg指令在单核处理器时，不需要加lock，而在多核处理器环境下，就需要加lock，因为每一个cpu调用的就是一个CAS指令。
+而在执行cmpxchg时，多核处理器会有多个cpu去执行CAS指令，多个CAS指令去操作同一个变量时，也会被另外的CAS指令打断，故使用lock去锁住总线。</code></pre><h3 id="什么是锁总线？"><a href="#什么是锁总线？" class="headerlink" title="什么是锁总线？"></a>什么是锁总线？</h3><pre><code>CPU是通过一组线去访问内存的，锁总线就是指当一个CPU去访问内存的时候，lock就将这组线给锁住，禁止其他CPU去访问该内存，从而实现原子操作。
+这就是CAS原子操作实现的底层。</code></pre><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=449239668&auto=1&height=66"></iframe>
+
+      
+      
+	<!-- 添加版权声明 -->
+	   
+            <!-- 《添加版权声明 -->
+
+
+<!-- #版权基础设定：0-关闭声明； 1-文章对应的md文件里有declare: true属性，才有版权声明； 2-所有文章均有版权声明 -->
+
+  <div class="declare">
+    <strong class="author">本文作者：</strong>
+    
+      AloofGuy
+    
+    <br>
+    <strong class="create-time">发布时间：</strong>
+    2020-07-05
+    <br>
+    <strong class="update-time">最后更新：</strong>
+    2020-07-05
+    <br>
+    <strong class="article-titles">本文标题：</strong>
+    <a href="http://aloofguy.github.io/2020/07/05/CAS底层详解/" title="CAS底层详解" target="_blank">CAS底层详解</a>
+    <br>
+    <strong class="article-url">本文链接：</strong>
+    <a href="http://aloofguy.github.io/2020/07/05/CAS底层详解/" title="CAS底层详解" target="_blank">http://aloofguy.github.io/2020/07/05/CAS底层详解/</a>
+    <br>
+    <strong class="copyright">版权声明：</strong>
+    本作品采用
+    <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" title="知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议">CC BY-NC-SA 4.0</a>
+    许可协议进行许可。转载请注明出处！
+    
+      <br>
+      <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"><img alt="知识共享许可协议" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"/></a>
+    
+  </div>
+
+<!-- 添加版权声明》 -->
+        
+      <!-- 添加版权声明 -->
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>有钱的捧个钱场，没钱的捧个人场<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/alipay.jpg">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/assets/wechatpay.jpg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+        <div class="article-pop-out tagcloud">
+          <i class="icon-tuding"></i>
+          <a class="article-tag-list-link color3">置顶</a>
+        </div>
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://aloofguy.github.io/ub.io/2020/07/05/CAS%E5%BA%95%E5%B1%82%E8%AF%A6%E8%A7%A3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/aloofguy.github.io/2020/05/24/%E4%B8%80%E6%AC%A1HTTP%E8%AF%B7%E6%B1%82%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/" class="archive-article-date">
-  	<time datetime="2020-05-24T07:47:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-24</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/aloofguy.github.io/2020/05/24/%E4%B8%80%E6%AC%A1HTTP%E8%AF%B7%E6%B1%82%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">一次HTTP请求的前世今生</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/aloofguy.github.io/2020/05/24/%E4%B8%80%E6%AC%A1HTTP%E8%AF%B7%E6%B1%82%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F/">一次HTTP请求的前世今生</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#CAS详解-底层"><span class="toc-number">1.</span> <span class="toc-text">CAS详解+底层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS是什么？"><span class="toc-number">1.1.</span> <span class="toc-text">CAS是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#在了解CAS之前，我们先了解一下用户态和内核态"><span class="toc-number">1.1.1.</span> <span class="toc-text">在了解CAS之前，我们先了解一下用户态和内核态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#再谈谈重量级锁和轻量级锁"><span class="toc-number">1.1.2.</span> <span class="toc-text">再谈谈重量级锁和轻量级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS就是一把轻量级锁"><span class="toc-number">1.1.3.</span> <span class="toc-text">CAS就是一把轻量级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS的灵魂问题！！！"><span class="toc-number">1.1.4.</span> <span class="toc-text">CAS的灵魂问题！！！</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS的原子操作是如何实现的？"><span class="toc-number">1.2.</span> <span class="toc-text">CAS的原子操作是如何实现的？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS底层最终实现"><span class="toc-number">1.2.1.</span> <span class="toc-text">CAS底层最终实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#这里的Lock有什么作用？"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">这里的Lock有什么作用？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是锁总线？"><span class="toc-number">1.2.2.</span> <span class="toc-text">什么是锁总线？</span></a></li></ol></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/aloofguy.github.io/2020/05/24/%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/" class="archive-article-date">
-  	<time datetime="2020-05-24T07:46:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-24</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/aloofguy.github.io/2020/05/24/%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/">循环依赖的那些事</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Java框架</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/aloofguy.github.io/2020/05/24/JWT%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E9%99%86/" class="archive-article-date">
-  	<time datetime="2020-05-24T06:50:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-24</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/aloofguy.github.io/2020/05/24/JWT%E7%AC%AC%E4%B8%89%E6%96%B9%E7%99%BB%E9%99%86/">JWT第三方登陆</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">OAuth2</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/aloofguy.github.io/2020/05/20/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/" class="archive-article-date">
-  	<time datetime="2020-05-20T09:35:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/aloofguy.github.io/2020/05/20/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/">排序算法详解</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+
+
+   
+       <section id="comments" class="comments">
+         <style>
+           .comments{margin:30px;padding:10px;background:#fff}
+           @media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#fff}}
+         </style>
+         <div id="vcomment" class="comment"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+  var notify = 'false' == true ? true : false;
+  var verify = 'false' == true ? true : false;
+  new Valine({
+    av: AV,
+    el: '#vcomment',
+    notify: notify,
+    app_id: "xT9tlmfHimqQuygEQcrBUTJx-gzGzoHsz",
+    app_key: "hKh0yjb88n8umGIYnk1bSHfy",
+    placeholder: "Just go go",
+    avatar: "mm",
+  });
+</script>
+
+     </section>
+   
+
 
 
           </div>
@@ -393,8 +526,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
